@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Bruce - Cat Companion",
+    "slug": "bruce-cat-companion",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1C1C1E"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.catzone.bruce",
+      "infoPlist": {
+        "UIViewControllerBasedStatusBarAppearance": true
+      }
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "scheme": "bruce"
+  }
+}
