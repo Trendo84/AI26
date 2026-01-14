@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat.Zone AI Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #FFF5E6 0%, #FFE8D6 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #FF9B85;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #8B7355;
+            font-size: 16px;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            background: white;
+            padding: 8px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: #8B7355;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #FFB5A7 0%, #FF9B85 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 155, 133, 0.3);
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #8B7355;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .input-group input[type="text"],
+        .input-group textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #FFE8D6;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input[type="text"]:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #FFB5A7;
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .file-upload {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            border: 3px dashed #FFB5A7;
+            border-radius: 16px;
+            background: #FFF5E6;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover {
+            background: #FFE8D6;
+            border-color: #FF9B85;
+        }
+
+        .file-upload input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .file-upload-text {
+            color: #8B7355;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .preview-container {
+            margin-top: 16px;
+            position: relative;
+        }
+
+        .preview-image {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .remove-preview {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #FFB5A7 0%, #FF9B85 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(255, 155, 133, 0.3);
+        }
+
+        .generate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 155, 133, 0.4);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result-container {
+            display: none;
+            margin-top: 24px;
+        }
+
+        .result-container.show {
+            display: block;
+        }
+
+        .result-image {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .watermark-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            color: #FF9B85;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            pointer-events: none;
+        }
+
+        .premium-badge {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 6px;
+            display: inline-block;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid #FFB5A7;
+            background: white;
+            color: #FF9B85;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #FFB5A7;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #FFE8D6;
+            border-top: 4px solid #FF9B85;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #8B7355;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .error {
+            background: #FFE8E8;
+            border: 2px solid #FF6B6B;
+            color: #C92A2A;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #E8F5FF;
+            border: 2px solid #74C0FC;
+            color: #1971C2;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .api-setup {
+            background: #FFF3CD;
+            border: 2px solid #FFC107;
+            color: #856404;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .api-setup input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border: 2px solid #FFE8A1;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+
+        .api-setup button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #FFC107;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .success-message {
+            background: #D4EDDA;
+            border: 2px solid #28A745;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .preset-prompts {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            background: #FFF5E6;
+            border: 2px solid #FFE8D6;
+            border-radius: 10px;
+            color: #8B7355;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .preset-btn:hover {
+            background: #FFE8D6;
+            border-color: #FFB5A7;
+        }
+
+        .style-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .style-option {
+            padding: 12px;
+            border: 2px solid #FFE8D6;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .style-option:hover {
+            border-color: #FFB5A7;
+        }
+
+        .style-option.selected {
+            background: linear-gradient(135deg, #FFB5A7 0%, #FF9B85 100%);
+            color: white;
+            border-color: #FF9B85;
+        }
+
+        .style-emoji {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .style-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .premium-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .premium-modal.show {
+            display: flex;
+        }
+
+        .premium-content {
+            background: white;
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .premium-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .premium-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FF9B85;
+            margin-bottom: 12px;
+        }
+
+        .premium-price {
+            font-size: 48px;
+            font-weight: 700;
+            color: #8B7355;
+            margin: 20px 0;
+        }
+
+        .premium-features {
+            text-align: left;
+            margin: 24px 0;
+            padding: 0 20px;
+        }
+
+        .premium-feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 15px;
+            color: #8B7355;
+        }
+
+        .premium-feature::before {
+            content: "✓";
+            color: #4CAF50;
+            font-weight: 700;
+            font-size: 20px;
+            margin-right: 12px;
+        }
+
+        .premium-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .premium-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .premium-btn.upgrade {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(255, 165, 0, 0.4);
+        }
+
+        .premium-btn.upgrade:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 165, 0, 0.5);
+        }
+
+        .premium-btn.cancel {
+            background: #F5F5F5;
+            color: #8B7355;
+        }
+
+        .usage-limit {
+            background: #FFF3CD;
+            border: 2px solid #FFC107;
+            color: #856404;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .usage-count {
+            font-size: 18px;
+            font-weight: 700;
+            color: #FF9B85;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐱 Cat.Zone AI Studio</h1>
+            <p>Turn Any Idea Into Purr-fect Cat Magic ✨</p>
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="switchMode('generate')">
+                ✨ Generate
+            </button>
+            <button class="mode-btn" onclick="switchMode('remix')">
+                🎨 Remix
+            </button>
+        </div>
+
+        <div class="usage-limit" id="usageLimit">
+            <span>Free generations: <span class="usage-count" id="usageCount">3/3</span></span>
+            <button class="premium-btn upgrade" style="padding: 8px 16px; font-size: 13px;" onclick="showPremiumModal()">
+                ⭐ Go Premium
+            </button>
+        </div>
+
+        <div id="apiSetup" class="api-setup">
+            <strong>🔑 API Setup Required</strong><br>
+            Get your free API key from <a href="https://replicate.com" target="_blank" style="color: #856404; text-decoration: underline;">Replicate.com</a> (includes $5 free credits)<br>
+            <input type="password" id="apiKeyInput" placeholder="r8_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+            <button onclick="saveApiKey()">💾 Save API Key</button>
+            <div id="apiSuccess" style="display: none;" class="success-message">
+                ✅ API Key saved! You're ready to generate.
+            </div>
+        </div>
+
+        <div class="info-box">
+            <strong>🎉 Ready to Create!</strong><br>
+            Generate unique cat photos from your imagination or remix your own photos into cat art. Share your creations with #CatZoneAI and tag @cat.z0ne! 🐱✨
+        </div>
+
+        <!-- Generate Mode -->
+        <div id="generateMode" class="content-card">
+            <div class="input-group">
+                <label>Describe your dream cat photo</label>
+                <textarea id="generatePrompt" placeholder="Example: A fluffy orange tabby cat wearing a tiny crown, sitting on a throne"></textarea>
+                
+                <div class="preset-prompts">
+                    <button class="preset-btn" onclick="setPrompt('A fluffy Persian cat with big eyes looking at camera')">🎀 Fluffy Persian</button>
+                    <button class="preset-btn" onclick="setPrompt('A playful orange tabby kitten playing with yarn')">🧶 Playful Kitten</button>
+                    <button class="preset-btn" onclick="setPrompt('A majestic black cat with green eyes in moonlight')">🌙 Moonlight Cat</button>
+                    <button class="preset-btn" onclick="setPrompt('A cute Siamese cat wearing sunglasses')">😎 Cool Cat</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Style</label>
+                <div class="style-selector">
+                    <div class="style-option selected" data-style="realistic" onclick="selectStyle(this)">
+                        <div class="style-emoji">📸</div>
+                        <div class="style-name">Realistic</div>
+                    </div>
+                    <div class="style-option" data-style="artistic" onclick="selectStyle(this)">
+                        <div class="style-emoji">🎨</div>
+                        <div class="style-name">Artistic</div>
+                    </div>
+                    <div class="style-option" data-style="cartoon" onclick="selectStyle(this)">
+                        <div class="style-emoji">🎭</div>
+                        <div class="style-name">Cartoon</div>
+                    </div>
+                    <div class="style-option" data-style="dreamy" onclick="selectStyle(this)">
+                        <div class="style-emoji">✨</div>
+                        <div class="style-name">Dreamy</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="generate-btn" onclick="generateImage()">
+                ✨ Generate Cat Photo
+            </button>
+        </div>
+
+        <!-- Remix Mode -->
+        <div id="remixMode" class="content-card" style="display: none;">
+            <div class="input-group">
+                <label>Upload your photo</label>
+                <div class="file-upload" id="fileUpload">
+                    <input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)">
+                    <div class="file-upload-icon">📸</div>
+                    <div class="file-upload-text">Click to upload or drag & drop</div>
+                </div>
+                <div id="previewContainer" class="preview-container" style="display: none;">
+                    <img id="previewImage" class="preview-image" alt="Preview">
+                    <button class="remove-preview" onclick="removePreview()">✕</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Transform into...</label>
+                <div class="style-selector">
+                    <div class="style-option selected" data-remix="cat-face" onclick="selectRemix(this)">
+                        <div class="style-emoji">😺</div>
+                        <div class="style-name">Cat Face</div>
+                    </div>
+                    <div class="style-option" data-remix="cat-body" onclick="selectRemix(this)">
+                        <div class="style-emoji">🐱</div>
+                        <div class="style-name">Full Cat</div>
+                    </div>
+                    <div class="style-option" data-remix="cat-painting" onclick="selectRemix(this)">
+                        <div class="style-emoji">🖼️</div>
+                        <div class="style-name">Cat Painting</div>
+                    </div>
+                    <div class="style-option" data-remix="cat-cartoon" onclick="selectRemix(this)">
+                        <div class="style-emoji">🎨</div>
+                        <div class="style-name">Cat Cartoon</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="generate-btn" onclick="remixImage()" id="remixBtn" disabled>
+                🎨 Remix Photo
+            </button>
+        </div>
+
+        <!-- Results -->
+        <div id="resultContainer" class="content-card result-container">
+            <img id="resultImage" class="result-image" alt="Generated result">
+            <div class="result-actions">
+                <button class="action-btn" onclick="downloadImage()">
+                    💾 Download
+                </button>
+                <button class="action-btn" onclick="shareImage()">
+                    📤 Share
+                </button>
+                <button class="action-btn" onclick="newGeneration()">
+                    🔄 New
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium Modal -->
+    <div id="premiumModal" class="premium-modal">
+        <div class="premium-content">
+            <div class="premium-icon">⭐</div>
+            <div class="premium-title">Upgrade to Premium</div>
+            <div style="color: #8B7355; margin-bottom: 8px;">Unlimited AI cat creations</div>
+            <div class="premium-price">$2.99<span style="font-size: 18px; color: #8B7355;">/month</span></div>
+            
+            <div class="premium-features">
+                <div class="premium-feature">Unlimited generations</div>
+                <div class="premium-feature">No watermark on images</div>
+                <div class="premium-feature">High-resolution downloads</div>
+                <div class="premium-feature">Priority generation speed</div>
+                <div class="premium-feature">Early access to new styles</div>
+            </div>
+
+            <div class="premium-buttons">
+                <button class="premium-btn cancel" onclick="closePremiumModal()">
+                    Maybe Later
+                </button>
+                <button class="premium-btn upgrade" onclick="upgradeToPremium()">
+                    Upgrade Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'generate';
+        let selectedStyle = 'realistic';
+        let selectedRemix = 'cat-face';
+        let uploadedImage = null;
+        let generatedImageUrl = null;
+        let apiKey = 'r8_9ZA2g5GQHj21cL2UtU79gNqEGAaSiKv1jU8om';
+        
+        // Premium and usage tracking
+        let isPremium = localStorage.getItem('isPremium') === 'true';
+        let usageCount = parseInt(localStorage.getItem('usageCount') || '0');
+        const FREE_LIMIT = 3;
+
+        // Hide API setup since key is integrated
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('apiSetup').style.display = 'none';
+            updateUsageDisplay();
+            
+            if (isPremium) {
+                document.getElementById('usageLimit').style.display = 'none';
+            }
+        });
+
+        function updateUsageDisplay() {
+            const remaining = Math.max(0, FREE_LIMIT - usageCount);
+            document.getElementById('usageCount').textContent = `${remaining}/${FREE_LIMIT}`;
+            
+            if (remaining === 0 && !isPremium) {
+                document.getElementById('usageCount').parentElement.innerHTML = 
+                    '<span style="color: #DC3545;">Out of free generations! ⚠️</span>';
+            }
+        }
+
+        function checkUsageLimit() {
+            if (isPremium) return true;
+            
+            if (usageCount >= FREE_LIMIT) {
+                showPremiumModal();
+                return false;
+            }
+            return true;
+        }
+
+        function incrementUsage() {
+            if (!isPremium) {
+                usageCount++;
+                localStorage.setItem('usageCount', usageCount);
+                updateUsageDisplay();
+            }
+        }
+
+        function showPremiumModal() {
+            document.getElementById('premiumModal').classList.add('show');
+        }
+
+        function closePremiumModal() {
+            document.getElementById('premiumModal').classList.remove('show');
+        }
+
+        function upgradeToPremium() {
+            // For now, simulate upgrade (in production, integrate Stripe/PayPal)
+            if (confirm('Premium upgrade would redirect to payment. For demo, activate premium now?')) {
+                isPremium = true;
+                localStorage.setItem('isPremium', 'true');
+                document.getElementById('usageLimit').style.display = 'none';
+                closePremiumModal();
+                alert('🎉 Premium activated! Enjoy unlimited generations without watermarks!');
+            }
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (!key) {
+                alert('Please enter your API key');
+                return;
+            }
+            if (!key.startsWith('r8_')) {
+                alert('Invalid API key format. Replicate keys start with "r8_"');
+                return;
+            }
+            localStorage.setItem('replicate_api_key', key);
+            apiKey = key;
+            document.getElementById('apiSuccess').style.display = 'block';
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Update button states
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show/hide content
+            if (mode === 'generate') {
+                document.getElementById('generateMode').style.display = 'block';
+                document.getElementById('remixMode').style.display = 'none';
+            } else {
+                document.getElementById('generateMode').style.display = 'none';
+                document.getElementById('remixMode').style.display = 'block';
+            }
+            
+            // Hide results
+            document.getElementById('resultContainer').classList.remove('show');
+        }
+
+        function setPrompt(text) {
+            document.getElementById('generatePrompt').value = text;
+        }
+
+        function selectStyle(element) {
+            document.querySelectorAll('#generateMode .style-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedStyle = element.getAttribute('data-style');
+        }
+
+        function selectRemix(element) {
+            document.querySelectorAll('#remixMode .style-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedRemix = element.getAttribute('data-remix');
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImage = e.target.result;
+                    document.getElementById('previewImage').src = e.target.result;
+                    document.getElementById('previewContainer').style.display = 'block';
+                    document.getElementById('remixBtn').disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removePreview() {
+            uploadedImage = null;
+            document.getElementById('previewContainer').style.display = 'none';
+            document.getElementById('imageInput').value = '';
+            document.getElementById('remixBtn').disabled = true;
+        }
+
+        function buildPrompt(basePrompt, style) {
+            const styleModifiers = {
+                'realistic': 'professional photography, highly detailed, 8k resolution',
+                'artistic': 'oil painting style, artistic, impressionist',
+                'cartoon': 'cartoon illustration, cute, animated style, pixar style',
+                'dreamy': 'dreamy atmosphere, soft lighting, ethereal, magical'
+            };
+            
+            return `${basePrompt}, ${styleModifiers[style]}, high quality`;
+        }
+
+        function buildRemixPrompt(remixType) {
+            const remixModifiers = {
+                'cat-face': 'transform this into a cat face, keeping the pose and composition, realistic cat features',
+                'cat-body': 'transform this person into a full cat body, anthropomorphic cat, keeping the personality',
+                'cat-painting': 'artistic oil painting of this as a cat, renaissance style, museum quality',
+                'cat-cartoon': 'cute cartoon cat version of this, pixar animation style, expressive'
+            };
+            
+            return remixModifiers[remixType];
+        }
+
+        async function generateImage() {
+            if (!checkUsageLimit()) return;
+            
+            const prompt = document.getElementById('generatePrompt').value.trim();
+            
+            if (!prompt) {
+                alert('Please describe the cat photo you want to generate!');
+                return;
+            }
+
+            const fullPrompt = buildPrompt(prompt, selectedStyle);
+            showLoading('Generating your cat photo with AI...');
+
+            try {
+                console.log('Starting generation with prompt:', fullPrompt);
+                
+                const requestBody = {
+                    input: {
+                        prompt: fullPrompt,
+                        aspect_ratio: "1:1",
+                        safety_filter_level: "block_some",
+                        output_format: "webp"
+                    }
+                };
+                
+                console.log('Request body:', JSON.stringify(requestBody, null, 2));
+                
+                // Call local backend server instead of Replicate directly
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                console.log('Response status:', response.status);
+                
+                const responseData = await response.json();
+                console.log('Response data:', responseData);
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} - ${responseData.detail || responseData.error || JSON.stringify(responseData)}`);
+                }
+
+                const prediction = responseData;
+                
+                // Poll for result
+                await pollPrediction(prediction.id);
+                
+            } catch (error) {
+                console.error('Generation error details:', error);
+                console.error('Error stack:', error.stack);
+                showError(`Failed to generate: ${error.message}`);
+            }
+        }
+
+        async function remixImage() {
+            if (!checkUsageLimit()) return;
+            
+            if (!uploadedImage) {
+                alert('Please upload an image first!');
+                return;
+            }
+
+            const remixPrompt = buildRemixPrompt(selectedRemix);
+            showLoading('Remixing your photo with AI magic...');
+
+            try {
+                console.log('Starting remix with prompt:', remixPrompt);
+                
+                // Call local backend server
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        input: {
+                            prompt: remixPrompt,
+                            aspect_ratio: "1:1",
+                            safety_filter_level: "block_some",
+                            output_format: "webp"
+                        }
+                    })
+                });
+
+                console.log('Remix response status:', response.status);
+                const responseData = await response.json();
+                console.log('Remix response data:', responseData);
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} - ${responseData.detail || responseData.error || JSON.stringify(responseData)}`);
+                }
+
+                const prediction = responseData;
+                await pollPrediction(prediction.id);
+                
+            } catch (error) {
+                console.error('Remix error:', error);
+                showError(`Failed to remix image: ${error.message}. Please try again.`);
+            }
+        }
+
+        async function pollPrediction(predictionId) {
+            const maxAttempts = 60; // 2 minutes max
+            let attempts = 0;
+
+            console.log('Starting to poll prediction:', predictionId);
+
+            while (attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Check every 2 seconds
+                
+                try {
+                    console.log(`Polling attempt ${attempts + 1}/${maxAttempts}`);
+                    
+                    // Call API with query parameter
+                    const response = await fetch(`/api/prediction?id=${predictionId}`);
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error('Poll error response:', errorData);
+                        throw new Error(`Poll failed: ${response.status}`);
+                    }
+
+                    const prediction = await response.json();
+                    console.log('Prediction status:', prediction.status);
+
+                    if (prediction.status === 'succeeded') {
+                        console.log('Prediction succeeded! Output:', prediction.output);
+                        if (prediction.output && prediction.output.length > 0) {
+                            showResult(prediction.output[0]);
+                        } else {
+                            throw new Error('No output received from API');
+                        }
+                        return;
+                    } else if (prediction.status === 'failed') {
+                        console.error('Prediction failed:', prediction.error);
+                        throw new Error(`Generation failed: ${prediction.error || 'Unknown error'}`);
+                    } else if (prediction.status === 'canceled') {
+                        throw new Error('Generation was canceled');
+                    }
+
+                    // Still processing
+                    console.log('Still processing...');
+                    attempts++;
+                } catch (error) {
+                    console.error('Error during polling:', error);
+                    throw error;
+                }
+            }
+
+            throw new Error('Generation timed out after 2 minutes');
+        }
+
+        function showLoading(message) {
+            const container = document.getElementById('resultContainer');
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">${message}</div>
+                    <div style="color: #8B7355; font-size: 14px; margin-top: 12px;">This may take 15-30 seconds...</div>
+                </div>
+            `;
+            container.classList.add('show');
+        }
+
+        function showError(message) {
+            const container = document.getElementById('resultContainer');
+            container.innerHTML = `
+                <div class="error">${message}</div>
+            `;
+            container.classList.add('show');
+        }
+
+        function showResult(imageUrl) {
+            generatedImageUrl = imageUrl;
+            incrementUsage();
+            
+            const container = document.getElementById('resultContainer');
+            
+            const watermarkHTML = isPremium ? '' : '<div class="watermark">@cat.z0ne</div>';
+            
+            container.innerHTML = `
+                <div class="watermark-container">
+                    <img id="resultImage" class="result-image" src="${imageUrl}" alt="Generated result" crossorigin="anonymous">
+                    ${watermarkHTML}
+                </div>
+                <div class="result-actions">
+                    <button class="action-btn" onclick="downloadImage()">
+                        💾 Download
+                    </button>
+                    <button class="action-btn" onclick="shareImage()">
+                        📤 Share
+                    </button>
+                    <button class="action-btn" onclick="newGeneration()">
+                        🔄 New
+                    </button>
+                </div>
+                ${!isPremium ? '<div style="text-align: center; margin-top: 12px; color: #8B7355; font-size: 14px;">Want no watermark? <a href="#" onclick="showPremiumModal(); return false;" style="color: #FF9B85; font-weight: 600;">Go Premium ⭐</a></div>' : ''}
+            `;
+            container.classList.add('show');
+        }
+
+        async function downloadImage() {
+            if (!generatedImageUrl) return;
+            
+            try {
+                const response = await fetch(generatedImageUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `catzone-ai-${Date.now()}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('Download failed. Please right-click the image and save it manually.');
+            }
+        }
+
+        async function shareImage() {
+            if (!generatedImageUrl) return;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Check out my AI cat photo from Cat.Zone!',
+                        text: 'Made with Cat.Zone AI Studio 🐱✨',
+                        url: window.location.href
+                    });
+                } catch (err) {
+                    copyLink();
+                }
+            } else {
+                copyLink();
+            }
+        }
+
+        function copyLink() {
+            const dummy = document.createElement('input');
+            document.body.appendChild(dummy);
+            dummy.value = window.location.href;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+            alert('Link copied! Share it with your followers! 🐱');
+        }
+
+        function newGeneration() {
+            document.getElementById('resultContainer').classList.remove('show');
+            if (currentMode === 'remix') {
+                removePreview();
+            }
+        }
+
+        // Drag and drop support
+        const fileUpload = document.getElementById('fileUpload');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            fileUpload.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileUpload.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileUpload.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            fileUpload.style.borderColor = '#FF9B85';
+            fileUpload.style.background = '#FFE8D6';
+        }
+
+        function unhighlight(e) {
+            fileUpload.style.borderColor = '#FFB5A7';
+            fileUpload.style.background = '#FFF5E6';
+        }
+
+        fileUpload.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0) {
+                document.getElementById('imageInput').files = files;
+                handleImageUpload({ target: { files: files } });
+            }
+        }
+    </script>
+</body>
+</html>
