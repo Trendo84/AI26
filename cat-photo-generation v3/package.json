@@ -1,0 +1,12 @@
+{
+  "name": "cat-zone-ai-studio",
+  "version": "1.0.0",
+  "description": "AI cat photo generator for Cat.Zone Instagram",
+  "dependencies": {
+    "node-fetch": "^2.6.7",
+    "stripe": "^14.10.0"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}
