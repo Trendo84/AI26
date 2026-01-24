@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyperliquid AI Trading Terminal</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;500;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+        // Theme configurations
+        const themes = {
+            cyberpunk: {
+                name: 'Cyberpunk',
+                primary: '#ff006e',
+                secondary: '#8338ec',
+                accent: '#3a86ff',
+                success: '#06ffa5',
+                danger: '#ff006e',
+                warning: '#ffbe0b',
+                bg: '#0a0e27',
+                bgSecondary: '#1a1f3a',
+                text: '#e0e0ff',
+                textSecondary: '#8b8bff',
+                border: '#ff006e40',
+                glowColor: '#ff006e',
+                font: "'Orbitron', monospace",
+                bodyFont: "'Rajdhani', sans-serif"
+            },
+            matrix: {
+                name: 'Matrix',
+                primary: '#00ff41',
+                secondary: '#008f11',
+                accent: '#00ff41',
+                success: '#00ff41',
+                danger: '#ff0000',
+                warning: '#ffff00',
+                bg: '#000000',
+                bgSecondary: '#001a00',
+                text: '#00ff41',
+                textSecondary: '#008f11',
+                border: '#00ff4140',
+                glowColor: '#00ff41',
+                font: "'Share Tech Mono', monospace",
+                bodyFont: "'Share Tech Mono', monospace"
+            },
+            neon: {
+                name: 'Neon Tokyo',
+                primary: '#ff2a6d',
+                secondary: '#05d9e8',
+                accent: '#d1f7ff',
+                success: '#01cdfe',
+                danger: '#ff2a6d',
+                warning: '#ffbe0b',
+                bg: '#05010d',
+                bgSecondary: '#1a0d2e',
+                text: '#d1f7ff',
+                textSecondary: '#b388ff',
+                border: '#ff2a6d60',
+                glowColor: '#05d9e8',
+                font: "'Orbitron', monospace",
+                bodyFont: "'Rajdhani', sans-serif"
+            }
+        };
+
+        // Main App Component
+        function TradingDashboard() {
+            const [currentTheme, setCurrentTheme] = useState('cyberpunk');
+            const [botStatus, setBotStatus] = useState('active');
+            const [accountBalance, setAccountBalance] = useState(100);
+            const [totalPnL, setTotalPnL] = useState(12.45);
+            const [dailyPnL, setDailyPnL] = useState(3.21);
+            const [winRate, setWinRate] = useState(68.5);
+            const [totalTrades, setTotalTrades] = useState(47);
+            const [openPositions, setOpenPositions] = useState([]);
+            const [recentTrades, setRecentTrades] = useState([]);
+            const [signals, setSignals] = useState([]);
+            const [marketData, setMarketData] = useState({});
+            const [selectedCoin, setSelectedCoin] = useState(null);
+
+            const theme = themes[currentTheme];
+
+            // Simulate real-time data updates
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    // Update mock data
+                    setAccountBalance(prev => prev + (Math.random() - 0.5) * 0.5);
+                    setDailyPnL(prev => prev + (Math.random() - 0.5) * 0.1);
+                    
+                    // Add random signal
+                    if (Math.random() > 0.7) {
+                        const newSignal = {
+                            id: Date.now(),
+                            symbol: ['BTC-USD', 'ETH-USD', 'SOL-USD'][Math.floor(Math.random() * 3)],
+                            action: Math.random() > 0.5 ? 'BUY' : 'SELL',
+                            confidence: 60 + Math.random() * 30,
+                            price: 50000 + Math.random() * 5000,
+                            time: new Date().toLocaleTimeString()
+                        };
+                        setSignals(prev => [newSignal, ...prev].slice(0, 10));
+                    }
+                }, 3000);
+
+                // Initialize mock positions
+                setOpenPositions([
+                    {
+                        symbol: 'BTC-USD',
+                        side: 'LONG',
+                        entryPrice: 49250.00,
+                        currentPrice: 49875.00,
+                        size: 0.02,
+                        leverage: 15,
+                        pnl: 12.50,
+                        pnlPercent: 1.27
+                    }
+                ]);
+
+                setRecentTrades([
+                    { id: 1, time: '14:32:15', symbol: 'BTC-USD', action: 'BUY', price: 49250, pnl: 1.2, status: 'closed' },
+                    { id: 2, time: '14:15:42', symbol: 'ETH-USD', action: 'SELL', price: 2650, pnl: -0.5, status: 'closed' },
+                    { id: 3, time: '13:58:23', symbol: 'SOL-USD', action: 'BUY', price: 98.5, pnl: 0.8, status: 'closed' },
+                ]);
+
+                return () => clearInterval(interval);
+            }, []);
+
+            return (
+                <div style={{
+                    minHeight: '100vh',
+                    background: theme.bg,
+                    color: theme.text,
+                    fontFamily: theme.bodyFont,
+                    padding: '0',
+                    margin: '0',
+                    overflow: 'hidden'
+                }}>
+                    <style>{`
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            overflow-x: hidden;
+                        }
+                        
+                        @keyframes glitch {
+                            0% { transform: translate(0) }
+                            20% { transform: translate(-2px, 2px) }
+                            40% { transform: translate(-2px, -2px) }
+                            60% { transform: translate(2px, 2px) }
+                            80% { transform: translate(2px, -2px) }
+                            100% { transform: translate(0) }
+                        }
+                        
+                        @keyframes pulse {
+                            0%, 100% { opacity: 1; }
+                            50% { opacity: 0.5; }
+                        }
+                        
+                        @keyframes slideIn {
+                            from {
+                                transform: translateX(-100%);
+                                opacity: 0;
+                            }
+                            to {
+                                transform: translateX(0);
+                                opacity: 1;
+                            }
+                        }
+                        
+                        @keyframes fadeIn {
+                            from { opacity: 0; transform: translateY(20px); }
+                            to { opacity: 1; transform: translateY(0); }
+                        }
+                        
+                        @keyframes scanline {
+                            0% { transform: translateY(-100%); }
+                            100% { transform: translateY(100vh); }
+                        }
+                        
+                        .glow {
+                            text-shadow: 0 0 10px ${theme.glowColor}, 0 0 20px ${theme.glowColor}, 0 0 30px ${theme.glowColor};
+                        }
+                        
+                        .card {
+                            background: ${theme.bgSecondary};
+                            border: 1px solid ${theme.border};
+                            border-radius: 8px;
+                            padding: 20px;
+                            position: relative;
+                            overflow: hidden;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+                        }
+                        
+                        .card:hover {
+                            border-color: ${theme.primary};
+                            box-shadow: 0 0 20px ${theme.primary}40, 0 4px 20px rgba(0,0,0,0.6);
+                            transform: translateY(-2px);
+                        }
+                        
+                        .card::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: -100%;
+                            width: 100%;
+                            height: 100%;
+                            background: linear-gradient(90deg, transparent, ${theme.primary}20, transparent);
+                            transition: left 0.5s;
+                        }
+                        
+                        .card:hover::before {
+                            left: 100%;
+                        }
+                        
+                        .scanline {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 2px;
+                            background: ${theme.primary};
+                            opacity: 0.1;
+                            animation: scanline 8s linear infinite;
+                            pointer-events: none;
+                            z-index: 9999;
+                        }
+                        
+                        .grid-bg {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background-image: 
+                                linear-gradient(${theme.primary}10 1px, transparent 1px),
+                                linear-gradient(90deg, ${theme.primary}10 1px, transparent 1px);
+                            background-size: 50px 50px;
+                            opacity: 0.1;
+                            pointer-events: none;
+                            z-index: 0;
+                        }
+                        
+                        ::-webkit-scrollbar {
+                            width: 8px;
+                        }
+                        
+                        ::-webkit-scrollbar-track {
+                            background: ${theme.bgSecondary};
+                        }
+                        
+                        ::-webkit-scrollbar-thumb {
+                            background: ${theme.primary};
+                            border-radius: 4px;
+                        }
+                        
+                        ::-webkit-scrollbar-thumb:hover {
+                            background: ${theme.secondary};
+                        }
+                        
+                        .btn {
+                            padding: 10px 20px;
+                            border: 1px solid ${theme.primary};
+                            background: ${theme.bgSecondary};
+                            color: ${theme.primary};
+                            font-family: ${theme.font};
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                        }
+                        
+                        .btn:hover {
+                            background: ${theme.primary};
+                            color: ${theme.bg};
+                            box-shadow: 0 0 20px ${theme.primary}60;
+                        }
+                    `}</style>
+
+                    {/* Background effects */}
+                    <div className="grid-bg"></div>
+                    <div className="scanline"></div>
+
+                    {/* Header */}
+                    <Header 
+                        theme={theme}
+                        currentTheme={currentTheme}
+                        setCurrentTheme={setCurrentTheme}
+                        botStatus={botStatus}
+                        setBotStatus={setBotStatus}
+                    />
+
+                    {/* Main Dashboard Grid */}
+                    <div style={{ padding: '20px', position: 'relative', zIndex: 1 }}>
+                        {/* Stats Row */}
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                            gap: '20px',
+                            marginBottom: '20px',
+                            animation: 'fadeIn 0.5s ease-out'
+                        }}>
+                            <StatCard 
+                                theme={theme}
+                                label="Account Balance"
+                                value={`$${accountBalance.toFixed(2)}`}
+                                change={`+${dailyPnL.toFixed(2)}%`}
+                                positive={dailyPnL > 0}
+                                icon="💰"
+                            />
+                            <StatCard 
+                                theme={theme}
+                                label="Total P&L"
+                                value={`$${totalPnL.toFixed(2)}`}
+                                change={`${totalPnL > 0 ? '+' : ''}${((totalPnL/accountBalance)*100).toFixed(2)}%`}
+                                positive={totalPnL > 0}
+                                icon="📈"
+                            />
+                            <StatCard 
+                                theme={theme}
+                                label="Win Rate"
+                                value={`${winRate.toFixed(1)}%`}
+                                change={`${totalTrades} trades`}
+                                positive={winRate > 60}
+                                icon="🎯"
+                            />
+                            <StatCard 
+                                theme={theme}
+                                label="Bot Status"
+                                value={botStatus.toUpperCase()}
+                                change="15x Leverage"
+                                positive={botStatus === 'active'}
+                                icon="🤖"
+                            />
+                        </div>
+
+                        {/* Main Content Grid */}
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '2fr 1fr',
+                            gap: '20px',
+                            marginBottom: '20px'
+                        }}>
+                            {/* Chart Area */}
+                            <div className="card" style={{ height: '400px' }}>
+                                <h3 style={{ 
+                                    fontFamily: theme.font, 
+                                    marginBottom: '15px',
+                                    color: theme.primary,
+                                    fontSize: '20px',
+                                    letterSpacing: '2px'
+                                }}>
+                                    BTC-USD LIVE CHART
+                                </h3>
+                                <TradingChart theme={theme} />
+                            </div>
+
+                            {/* Signals Panel */}
+                            <div className="card" style={{ height: '400px', overflow: 'auto' }}>
+                                <h3 style={{ 
+                                    fontFamily: theme.font, 
+                                    marginBottom: '15px',
+                                    color: theme.primary,
+                                    fontSize: '18px',
+                                    letterSpacing: '2px'
+                                }}>
+                                    LIVE SIGNALS
+                                </h3>
+                                <SignalsPanel theme={theme} signals={signals} />
+                            </div>
+                        </div>
+
+                        {/* Positions and Analytics */}
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
+                            gap: '20px',
+                            marginBottom: '20px'
+                        }}>
+                            <OpenPositions theme={theme} positions={openPositions} />
+                            <AnalyticsDashboard theme={theme} />
+                        </div>
+
+                        {/* Recent Trades */}
+                        <RecentTrades theme={theme} trades={recentTrades} />
+
+                        {/* Crypto Screener */}
+                        <CryptoScreener 
+                            theme={theme}
+                            selectedCoin={selectedCoin}
+                            setSelectedCoin={setSelectedCoin}
+                        />
+                    </div>
+                </div>
+            );
+        }
+
+        // Header Component
+        function Header({ theme, currentTheme, setCurrentTheme, botStatus, setBotStatus }) {
+            return (
+                <div style={{
+                    background: theme.bgSecondary,
+                    borderBottom: `2px solid ${theme.primary}`,
+                    padding: '15px 30px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 100,
+                    boxShadow: `0 4px 20px ${theme.primary}20`
+                }}>
+                    <h1 style={{
+                        fontFamily: theme.font,
+                        fontSize: '28px',
+                        letterSpacing: '3px',
+                        color: theme.primary,
+                        textShadow: `0 0 20px ${theme.glowColor}`,
+                        animation: 'glitch 3s infinite'
+                    }}>
+                        ⚡ HYPERLIQUID AI TERMINAL
+                    </h1>
+
+                    <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                        {/* Theme Selector */}
+                        <select 
+                            value={currentTheme}
+                            onChange={(e) => setCurrentTheme(e.target.value)}
+                            className="btn"
+                            style={{ padding: '8px 15px' }}
+                        >
+                            <option value="cyberpunk">Cyberpunk</option>
+                            <option value="matrix">Matrix</option>
+                            <option value="neon">Neon Tokyo</option>
+                        </select>
+
+                        {/* Bot Control */}
+                        <button 
+                            className="btn"
+                            onClick={() => setBotStatus(botStatus === 'active' ? 'paused' : 'active')}
+                            style={{
+                                background: botStatus === 'active' ? theme.success : theme.danger
+                            }}
+                        >
+                            {botStatus === 'active' ? '⏸ PAUSE' : '▶ START'} BOT
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // Stat Card Component
+        function StatCard({ theme, label, value, change, positive, icon }) {
+            return (
+                <div className="card" style={{
+                    padding: '20px',
+                    animation: 'fadeIn 0.5s ease-out'
+                }}>
+                    <div style={{ fontSize: '32px', marginBottom: '10px' }}>{icon}</div>
+                    <div style={{
+                        fontSize: '12px',
+                        color: theme.textSecondary,
+                        marginBottom: '8px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px'
+                    }}>
+                        {label}
+                    </div>
+                    <div style={{
+                        fontSize: '28px',
+                        fontFamily: theme.font,
+                        color: theme.primary,
+                        marginBottom: '5px',
+                        textShadow: `0 0 10px ${theme.glowColor}`
+                    }}>
+                        {value}
+                    </div>
+                    <div style={{
+                        fontSize: '14px',
+                        color: positive ? theme.success : theme.danger
+                    }}>
+                        {change}
+                    </div>
+                </div>
+            );
+        }
+
+        // Trading Chart Component
+        function TradingChart({ theme }) {
+            const chartRef = useRef(null);
+            
+            useEffect(() => {
+                if (!chartRef.current) return;
+                
+                // Generate mock candlestick data
+                const data = [];
+                let basePrice = 50000;
+                
+                for (let i = 0; i < 50; i++) {
+                    const open = basePrice + (Math.random() - 0.5) * 200;
+                    const close = open + (Math.random() - 0.5) * 300;
+                    const high = Math.max(open, close) + Math.random() * 150;
+                    const low = Math.min(open, close) - Math.random() * 150;
+                    
+                    data.push({
+                        time: Date.now() / 1000 - (50 - i) * 60,
+                        open,
+                        high,
+                        low,
+                        close
+                    });
+                    
+                    basePrice = close;
+                }
+                
+                // Create simple canvas chart
+                const canvas = chartRef.current;
+                const ctx = canvas.getContext('2d');
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                
+                // Clear canvas
+                ctx.fillStyle = theme.bgSecondary;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw grid
+                ctx.strokeStyle = theme.primary + '20';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < 10; i++) {
+                    const y = (canvas.height / 10) * i;
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+                
+                // Draw candlesticks
+                const candleWidth = canvas.width / data.length;
+                const priceRange = Math.max(...data.map(d => d.high)) - Math.min(...data.map(d => d.low));
+                const minPrice = Math.min(...data.map(d => d.low));
+                
+                data.forEach((candle, i) => {
+                    const x = i * candleWidth;
+                    const isGreen = candle.close > candle.open;
+                    
+                    // Draw wick
+                    ctx.strokeStyle = isGreen ? theme.success : theme.danger;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    const highY = canvas.height - ((candle.high - minPrice) / priceRange) * canvas.height;
+                    const lowY = canvas.height - ((candle.low - minPrice) / priceRange) * canvas.height;
+                    ctx.moveTo(x + candleWidth / 2, highY);
+                    ctx.lineTo(x + candleWidth / 2, lowY);
+                    ctx.stroke();
+                    
+                    // Draw body
+                    ctx.fillStyle = isGreen ? theme.success : theme.danger;
+                    const openY = canvas.height - ((candle.open - minPrice) / priceRange) * canvas.height;
+                    const closeY = canvas.height - ((candle.close - minPrice) / priceRange) * canvas.height;
+                    const bodyHeight = Math.abs(closeY - openY);
+                    ctx.fillRect(x + 2, Math.min(openY, closeY), candleWidth - 4, bodyHeight || 1);
+                });
+                
+            }, [theme]);
+            
+            return (
+                <canvas 
+                    ref={chartRef}
+                    style={{ width: '100%', height: 'calc(100% - 40px)' }}
+                />
+            );
+        }
+
+        // Signals Panel Component
+        function SignalsPanel({ theme, signals }) {
+            return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {signals.length === 0 && (
+                        <div style={{ 
+                            textAlign: 'center', 
+                            padding: '40px',
+                            color: theme.textSecondary
+                        }}>
+                            Waiting for signals...
+                        </div>
+                    )}
+                    {signals.map((signal, index) => (
+                        <div
+                            key={signal.id}
+                            style={{
+                                background: theme.bg,
+                                border: `1px solid ${signal.action === 'BUY' ? theme.success : theme.danger}`,
+                                borderRadius: '6px',
+                                padding: '12px',
+                                animation: 'slideIn 0.3s ease-out',
+                                animationDelay: `${index * 0.05}s`
+                            }}
+                        >
+                            <div style={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between',
+                                marginBottom: '5px'
+                            }}>
+                                <span style={{ 
+                                    fontFamily: theme.font,
+                                    color: signal.action === 'BUY' ? theme.success : theme.danger,
+                                    fontWeight: 'bold'
+                                }}>
+                                    {signal.action} {signal.symbol}
+                                </span>
+                                <span style={{ fontSize: '11px', color: theme.textSecondary }}>
+                                    {signal.time}
+                                </span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span style={{ fontSize: '12px' }}>
+                                    ${signal.price.toFixed(2)}
+                                </span>
+                                <span style={{ 
+                                    fontSize: '12px',
+                                    color: theme.primary
+                                }}>
+                                    {signal.confidence.toFixed(1)}% confidence
+                                </span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        // Open Positions Component
+        function OpenPositions({ theme, positions }) {
+            return (
+                <div className="card">
+                    <h3 style={{ 
+                        fontFamily: theme.font, 
+                        marginBottom: '15px',
+                        color: theme.primary,
+                        fontSize: '18px',
+                        letterSpacing: '2px'
+                    }}>
+                        OPEN POSITIONS
+                    </h3>
+                    {positions.length === 0 ? (
+                        <div style={{ 
+                            textAlign: 'center', 
+                            padding: '40px',
+                            color: theme.textSecondary
+                        }}>
+                            No open positions
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {positions.map((pos, index) => (
+                                <div
+                                    key={index}
+                                    style={{
+                                        background: theme.bg,
+                                        border: `1px solid ${pos.side === 'LONG' ? theme.success : theme.danger}`,
+                                        borderRadius: '6px',
+                                        padding: '15px'
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                        <span style={{ 
+                                            fontFamily: theme.font,
+                                            color: pos.side === 'LONG' ? theme.success : theme.danger
+                                        }}>
+                                            {pos.side} {pos.symbol}
+                                        </span>
+                                        <span style={{ fontSize: '12px' }}>
+                                            {pos.leverage}x Leverage
+                                        </span>
+                                    </div>
+                                    <div style={{ 
+                                        display: 'grid', 
+                                        gridTemplateColumns: '1fr 1fr',
+                                        gap: '10px',
+                                        fontSize: '13px'
+                                    }}>
+                                        <div>
+                                            <div style={{ color: theme.textSecondary }}>Entry</div>
+                                            <div>${pos.entryPrice.toFixed(2)}</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ color: theme.textSecondary }}>Current</div>
+                                            <div>${pos.currentPrice.toFixed(2)}</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ color: theme.textSecondary }}>Size</div>
+                                            <div>{pos.size} BTC</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ color: theme.textSecondary }}>P&L</div>
+                                            <div style={{ 
+                                                color: pos.pnl > 0 ? theme.success : theme.danger
+                                            }}>
+                                                ${pos.pnl.toFixed(2)} ({pos.pnlPercent.toFixed(2)}%)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Analytics Dashboard Component
+        function AnalyticsDashboard({ theme }) {
+            return (
+                <div className="card">
+                    <h3 style={{ 
+                        fontFamily: theme.font, 
+                        marginBottom: '15px',
+                        color: theme.primary,
+                        fontSize: '18px',
+                        letterSpacing: '2px'
+                    }}>
+                        PERFORMANCE ANALYTICS
+                    </h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <AnalyticBar theme={theme} label="Win Rate" value={68.5} max={100} />
+                        <AnalyticBar theme={theme} label="Profit Factor" value={1.85} max={3} />
+                        <AnalyticBar theme={theme} label="Sharpe Ratio" value={1.42} max={3} />
+                        <AnalyticBar theme={theme} label="Max Drawdown" value={8.2} max={15} danger />
+                    </div>
+                </div>
+            );
+        }
+
+        // Analytic Bar Component
+        function AnalyticBar({ theme, label, value, max, danger }) {
+            const percentage = (value / max) * 100;
+            
+            return (
+                <div>
+                    <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between',
+                        marginBottom: '5px',
+                        fontSize: '13px'
+                    }}>
+                        <span style={{ color: theme.textSecondary }}>{label}</span>
+                        <span style={{ 
+                            color: danger ? theme.danger : theme.success,
+                            fontFamily: theme.font
+                        }}>
+                            {value.toFixed(2)}
+                        </span>
+                    </div>
+                    <div style={{
+                        background: theme.bg,
+                        height: '8px',
+                        borderRadius: '4px',
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{
+                            width: `${percentage}%`,
+                            height: '100%',
+                            background: danger ? theme.danger : theme.success,
+                            transition: 'width 0.5s ease',
+                            boxShadow: `0 0 10px ${danger ? theme.danger : theme.success}`
+                        }} />
+                    </div>
+                </div>
+            );
+        }
+
+        // Recent Trades Component
+        function RecentTrades({ theme, trades }) {
+            return (
+                <div className="card" style={{ marginBottom: '20px' }}>
+                    <h3 style={{ 
+                        fontFamily: theme.font, 
+                        marginBottom: '15px',
+                        color: theme.primary,
+                        fontSize: '18px',
+                        letterSpacing: '2px'
+                    }}>
+                        RECENT TRADES
+                    </h3>
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ 
+                            width: '100%',
+                            borderCollapse: 'collapse',
+                            fontSize: '13px'
+                        }}>
+                            <thead>
+                                <tr style={{ borderBottom: `1px solid ${theme.border}` }}>
+                                    <th style={{ padding: '10px', textAlign: 'left', color: theme.textSecondary }}>Time</th>
+                                    <th style={{ padding: '10px', textAlign: 'left', color: theme.textSecondary }}>Symbol</th>
+                                    <th style={{ padding: '10px', textAlign: 'left', color: theme.textSecondary }}>Action</th>
+                                    <th style={{ padding: '10px', textAlign: 'right', color: theme.textSecondary }}>Price</th>
+                                    <th style={{ padding: '10px', textAlign: 'right', color: theme.textSecondary }}>P&L</th>
+                                    <th style={{ padding: '10px', textAlign: 'center', color: theme.textSecondary }}>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {trades.map(trade => (
+                                    <tr key={trade.id} style={{ borderBottom: `1px solid ${theme.border}40` }}>
+                                        <td style={{ padding: '10px' }}>{trade.time}</td>
+                                        <td style={{ padding: '10px', fontFamily: theme.font }}>{trade.symbol}</td>
+                                        <td style={{ 
+                                            padding: '10px',
+                                            color: trade.action === 'BUY' ? theme.success : theme.danger
+                                        }}>
+                                            {trade.action}
+                                        </td>
+                                        <td style={{ padding: '10px', textAlign: 'right' }}>${trade.price}</td>
+                                        <td style={{ 
+                                            padding: '10px',
+                                            textAlign: 'right',
+                                            color: trade.pnl > 0 ? theme.success : theme.danger,
+                                            fontFamily: theme.font
+                                        }}>
+                                            {trade.pnl > 0 ? '+' : ''}{trade.pnl}%
+                                        </td>
+                                        <td style={{ padding: '10px', textAlign: 'center' }}>
+                                            <span style={{
+                                                padding: '4px 8px',
+                                                borderRadius: '4px',
+                                                background: theme.success + '20',
+                                                color: theme.success,
+                                                fontSize: '11px',
+                                                textTransform: 'uppercase'
+                                            }}>
+                                                {trade.status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        }
+
+        // Crypto Screener Component
+        function CryptoScreener({ theme, selectedCoin, setSelectedCoin }) {
+            const cryptos = [
+                { 
+                    symbol: 'BTC-USD', 
+                    name: 'Bitcoin',
+                    price: 49875.00, 
+                    change: 2.34,
+                    volume: '28.5B',
+                    signal: 'LONG',
+                    confidence: 75,
+                    rsi: 58.2,
+                    macd: 'Bullish'
+                },
+                { 
+                    symbol: 'ETH-USD', 
+                    name: 'Ethereum',
+                    price: 2650.50, 
+                    change: -0.85,
+                    volume: '12.8B',
+                    signal: 'SHORT',
+                    confidence: 68,
+                    rsi: 64.5,
+                    macd: 'Bearish'
+                },
+                { 
+                    symbol: 'SOL-USD', 
+                    name: 'Solana',
+                    price: 98.75, 
+                    change: 5.21,
+                    volume: '3.2B',
+                    signal: 'LONG',
+                    confidence: 82,
+                    rsi: 45.8,
+                    macd: 'Bullish'
+                },
+                { 
+                    symbol: 'AVAX-USD', 
+                    name: 'Avalanche',
+                    price: 35.82, 
+                    change: 1.45,
+                    volume: '892M',
+                    signal: 'HOLD',
+                    confidence: 55,
+                    rsi: 52.3,
+                    macd: 'Neutral'
+                }
+            ];
+
+            return (
+                <div className="card">
+                    <h3 style={{ 
+                        fontFamily: theme.font, 
+                        marginBottom: '20px',
+                        color: theme.primary,
+                        fontSize: '22px',
+                        letterSpacing: '2px'
+                    }}>
+                        📊 CRYPTO SCREENER - AI SIGNALS
+                    </h3>
+                    
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                        gap: '15px'
+                    }}>
+                        {cryptos.map((crypto, index) => (
+                            <div
+                                key={crypto.symbol}
+                                onClick={() => setSelectedCoin(selectedCoin === crypto.symbol ? null : crypto.symbol)}
+                                style={{
+                                    background: theme.bg,
+                                    border: `2px solid ${crypto.signal === 'LONG' ? theme.success : crypto.signal === 'SHORT' ? theme.danger : theme.textSecondary}`,
+                                    borderRadius: '10px',
+                                    padding: '20px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease',
+                                    animation: 'fadeIn 0.5s ease-out',
+                                    animationDelay: `${index * 0.1}s`,
+                                    position: 'relative',
+                                    overflow: 'hidden'
+                                }}
+                                className={selectedCoin === crypto.symbol ? 'selected-coin' : ''}
+                            >
+                                <style>{`
+                                    .selected-coin {
+                                        transform: scale(1.02);
+                                        box-shadow: 0 0 30px ${theme.primary}60 !important;
+                                    }
+                                `}</style>
+                                
+                                {/* Signal Badge */}
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '10px',
+                                    right: '10px',
+                                    padding: '5px 12px',
+                                    borderRadius: '20px',
+                                    background: crypto.signal === 'LONG' ? theme.success : crypto.signal === 'SHORT' ? theme.danger : theme.textSecondary,
+                                    color: theme.bg,
+                                    fontSize: '11px',
+                                    fontWeight: 'bold',
+                                    fontFamily: theme.font,
+                                    letterSpacing: '1px'
+                                }}>
+                                    {crypto.signal}
+                                </div>
+
+                                {/* Coin Header */}
+                                <div style={{ marginBottom: '15px' }}>
+                                    <div style={{
+                                        fontSize: '20px',
+                                        fontFamily: theme.font,
+                                        color: theme.primary,
+                                        marginBottom: '3px'
+                                    }}>
+                                        {crypto.symbol}
+                                    </div>
+                                    <div style={{
+                                        fontSize: '12px',
+                                        color: theme.textSecondary
+                                    }}>
+                                        {crypto.name}
+                                    </div>
+                                </div>
+
+                                {/* Price Info */}
+                                <div style={{ marginBottom: '15px' }}>
+                                    <div style={{
+                                        fontSize: '24px',
+                                        fontFamily: theme.font,
+                                        color: theme.text,
+                                        marginBottom: '5px'
+                                    }}>
+                                        ${crypto.price.toLocaleString()}
+                                    </div>
+                                    <div style={{
+                                        fontSize: '14px',
+                                        color: crypto.change > 0 ? theme.success : theme.danger
+                                    }}>
+                                        {crypto.change > 0 ? '+' : ''}{crypto.change}% 24h
+                                    </div>
+                                </div>
+
+                                {/* Metrics */}
+                                {selectedCoin !== crypto.symbol && (
+                                    <div style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: '1fr 1fr',
+                                        gap: '10px',
+                                        fontSize: '12px'
+                                    }}>
+                                        <div>
+                                            <div style={{ color: theme.textSecondary }}>Volume</div>
+                                            <div style={{ fontFamily: theme.font }}>{crypto.volume}</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ color: theme.textSecondary }}>Confidence</div>
+                                            <div style={{ 
+                                                fontFamily: theme.font,
+                                                color: theme.primary
+                                            }}>
+                                                {crypto.confidence}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Expanded View */}
+                                {selectedCoin === crypto.symbol && (
+                                    <div style={{
+                                        marginTop: '15px',
+                                        paddingTop: '15px',
+                                        borderTop: `1px solid ${theme.border}`,
+                                        animation: 'fadeIn 0.3s ease-out'
+                                    }}>
+                                        <div style={{ marginBottom: '15px' }}>
+                                            <div style={{
+                                                fontSize: '13px',
+                                                color: theme.textSecondary,
+                                                marginBottom: '10px'
+                                            }}>
+                                                Technical Indicators
+                                            </div>
+                                            <div style={{
+                                                display: 'grid',
+                                                gridTemplateColumns: '1fr 1fr',
+                                                gap: '10px',
+                                                fontSize: '12px'
+                                            }}>
+                                                <div>
+                                                    <div style={{ color: theme.textSecondary }}>RSI (14)</div>
+                                                    <div style={{ 
+                                                        fontFamily: theme.font,
+                                                        color: crypto.rsi < 30 ? theme.success : crypto.rsi > 70 ? theme.danger : theme.text
+                                                    }}>
+                                                        {crypto.rsi}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div style={{ color: theme.textSecondary }}>MACD</div>
+                                                    <div style={{ 
+                                                        fontFamily: theme.font,
+                                                        color: crypto.macd === 'Bullish' ? theme.success : crypto.macd === 'Bearish' ? theme.danger : theme.text
+                                                    }}>
+                                                        {crypto.macd}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div style={{ color: theme.textSecondary }}>Volume 24h</div>
+                                                    <div style={{ fontFamily: theme.font }}>{crypto.volume}</div>
+                                                </div>
+                                                <div>
+                                                    <div style={{ color: theme.textSecondary }}>AI Confidence</div>
+                                                    <div style={{ 
+                                                        fontFamily: theme.font,
+                                                        color: theme.primary
+                                                    }}>
+                                                        {crypto.confidence}%
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Mini Chart Placeholder */}
+                                        <div style={{
+                                            height: '80px',
+                                            background: theme.bgSecondary,
+                                            borderRadius: '6px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            marginBottom: '10px',
+                                            border: `1px solid ${theme.border}`
+                                        }}>
+                                            <MiniChart theme={theme} positive={crypto.change > 0} />
+                                        </div>
+
+                                        {/* Action Button */}
+                                        <button className="btn" style={{
+                                            width: '100%',
+                                            background: crypto.signal === 'LONG' ? theme.success : crypto.signal === 'SHORT' ? theme.danger : theme.bgSecondary,
+                                            color: crypto.signal !== 'HOLD' ? theme.bg : theme.text,
+                                            border: 'none'
+                                        }}>
+                                            {crypto.signal === 'HOLD' ? 'MONITOR' : `TRADE ${crypto.signal}`}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Mini Chart Component
+        function MiniChart({ theme, positive }) {
+            const canvasRef = useRef(null);
+
+            useEffect(() => {
+                if (!canvasRef.current) return;
+                
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+
+                // Generate random line chart
+                const points = [];
+                let value = canvas.height / 2;
+                
+                for (let i = 0; i < 30; i++) {
+                    value += (Math.random() - (positive ? 0.45 : 0.55)) * 5;
+                    value = Math.max(5, Math.min(canvas.height - 5, value));
+                    points.push({ x: (canvas.width / 29) * i, y: value });
+                }
+
+                // Draw line
+                ctx.strokeStyle = positive ? theme.success : theme.danger;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                
+                for (let i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+                
+                ctx.stroke();
+
+                // Fill area under line
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.lineTo(0, canvas.height);
+                ctx.closePath();
+                
+                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, (positive ? theme.success : theme.danger) + '40');
+                gradient.addColorStop(1, (positive ? theme.success : theme.danger) + '00');
+                ctx.fillStyle = gradient;
+                ctx.fill();
+            }, [theme, positive]);
+
+            return (
+                <canvas 
+                    ref={canvasRef}
+                    style={{ width: '100%', height: '100%' }}
+                />
+            );
+        }
+
+        // Render the app
+        ReactDOM.render(<TradingDashboard />, document.getElementById('root'));
+    </script>
+</body>
+</html>
