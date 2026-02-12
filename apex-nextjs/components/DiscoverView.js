@@ -1,122 +1,93 @@
-// components/DiscoverView.js - Fixed: Removed PM/KS/SIM/All filter leftovers
 'use client';
 import { useState, useEffect } from 'react';
-import MarketCard from './MarketCard';
-import Spark from './Spark';
-
-const CATEGORIES = ['All', 'Crypto', 'Politics', 'Sports', 'Weather', 'Tech', 'Culture'];
-const QUICK_FILTERS = ['Trending', 'New', 'Ending Soon'];
 
 export default function DiscoverView({ onTrade }) {
   const [markets, setMarkets] = useState([]);
-  const [filtered, setFiltered] = useState([]);
-  const [category, setCategory] = useState('All');
-  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=100')
-      .then(r => r.json())
-      .then(data => {
+    const fetchMarkets = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=50');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid data format from API');
+        }
+        
         setMarkets(data);
-        setFiltered(data);
+        setError(null);
+      } catch (err) {
+        console.error('Fetch error:', err);
+        setError(err.message);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    };
+
+    fetchMarkets();
   }, []);
 
-  useEffect(() => {
-    let result = markets;
-    
-    if (category !== 'All') {
-      result = result.filter(m => 
-        m.category?.toLowerCase().includes(category.toLowerCase()) ||
-        m.marketSlug?.toLowerCase().includes(category.toLowerCase())
-      );
-    }
-    
-    if (search) {
-      result = result.filter(m => 
-        m.question?.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-    
-    setFiltered(result);
-  }, [category, search, markets]);
+  if (loading) {
+    return (
+      <div className="p-8 text-center">
+        <div className="text-2xl mb-4">◈</div>
+        <div>Loading markets...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <div className="text-xl mb-4">⚠️</div>
+        <div>Error loading markets</div>
+        <div className="text-sm mt-2 opacity-60">{error}</div>
+        <button 
+          onClick={() => window.location.reload()}
+          className="mt-4 px-4 py-2 rounded"
+          style={{ background: 'var(--ac)', color: '#000' }}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div className="h-full overflow-y-auto">
-      {/* Header */}
-      <div className="p-4 sticky top-0 z-10" style={{ background: 'var(--bg1)' }}>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              placeholder="Search markets..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm"
-              style={{ background: 'var(--bg3)', border: '1px solid var(--brd)', color: 'var(--tx)' }}
-            />
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2">🔍</span>
-          </div>
-          
-          <div className="flex gap-2">
-            {QUICK_FILTERS.map(f => (
-              <button
-                key={f}
-                className="px-4 py-2.5 rounded-xl text-sm font-bold"
-                style={{ background: 'var(--ac)', color: '#000' }}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          <span className="text-xs font-bold uppercase self-center mr-2" style={{ color: 'var(--tx3)' }}>Categories:</span>
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat)}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all"
-              style={{
-                background: category === cat ? 'var(--ac)' : 'var(--bg3)',
-                color: category === cat ? '#000' : 'var(--tx2)',
-              }}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Markets Grid */}
-      <div className="p-4">
-        {loading ? (
-          <div className="text-center py-20">
-            <Spark />
-            <div className="mt-4" style={{ color: 'var(--tx3)' }}>Loading markets...</div>
-          </div>
-        ) : (
-          <>
-            <div className="mb-4 text-xs font-bold uppercase" style={{ color: 'var(--tx3)' }}>
-              {filtered.length} Markets Found
-            </div>
+    <div className="p-4">
+      <div className="mb-4 text-sm opacity-60">{markets.length} markets loaded</div>
+      
+      <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+        {markets.slice(0, 12).map((market) => (
+          <div 
+            key={market.id} 
+            className="p-4 rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+            style={{ background: 'var(--bg3)', border: '1px solid var(--brd)' }}
+            onClick={() => onTrade && onTrade(market)}
+          >
+            <div className="text-xs opacity-60 mb-2 uppercase">{market.category || 'Market'}</div>
+            <div className="font-bold text-sm mb-3">{market.question}</div>
             
-            <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
-              {filtered.map(market => (
-                <MarketCard 
-                  key={market.id} 
-                  market={market} 
-                  onTrade={onTrade}
-                />
-              ))}
+            {market.outcomes && (
+              <div className="flex justify-between text-xs">
+                <span>{market.outcomes[0]}: {market.outcomePrices?.[0] || '50%'}</span>
+                <span>{market.outcomes[1]}: {market.outcomePrices?.[1] || '50%'}</span>
+              </div>
+            )}
+            
+            <div className="mt-3 text-xs opacity-60">
+              Vol: ${(market.volumeNum / 1000).toFixed(1)}K
             </div>
-          </>
-        )}
+          </div>
+        ))}
       </div>
     </div>
   );
