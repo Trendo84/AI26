@@ -77,6 +77,130 @@ export default function Home() {
   const handleTrade = useCallback(async ({ marketId, marketQuestion, marketCategory, side, amount, price }) => {
     const trade = {
       id: Date.now().toString(),
-      marketId, marketQuestion, marketCategory, side,
-      action: 'BUY', amount, price,
-  
+      marketId, 
+      marketQuestion, 
+      marketCategory, 
+      side,
+      action: 'BUY', 
+      amount, 
+      price,
+      shares: amount / price,
+      isPaper: true,
+      status: 'open',
+      createdAt: new Date().toISOString(),
+    };
+    
+    const newTrades = [trade, ...trades];
+    const newBal = paperBalance - amount;
+    persist(newTrades, newBal);
+    setTradeMarket(null);
+  }, [trades, paperBalance, persist]);
+
+  const handleCloseTrade = useCallback((tradeId, exitPrice) => {
+    const trade = trades.find(t => t.id === tradeId);
+    if (!trade) return;
+    
+    const pnl = (exitPrice - trade.price) * trade.shares * (trade.side === 'YES' ? 1 : -1);
+    const updatedTrades = trades.map(t => 
+      t.id === tradeId 
+        ? { ...t, status: 'closed', exitPrice, pnl, closedAt: new Date().toISOString() }
+        : t
+    );
+    const newBal = paperBalance + (trade.amount + pnl);
+    persist(updatedTrades, newBal);
+  }, [trades, paperBalance, persist]);
+
+  const CurrentView = viewMap[view] || DiscoverView;
+
+  return (
+    <div className="min-h-screen" style={{ background: 'var(--bg1)' }}>
+      {isMatrix && <MatrixRain />}
+      
+      <Navbar clock={clock} />
+      
+      <div className="flex" style={{ height: 'calc(100vh - 60px)' }}>
+        {/* Sidebar */}
+        <aside className="w-60 flex flex-col border-r" style={{ borderColor: 'var(--brd)', background: 'var(--bg2)' }}>
+          <Ticker />
+          
+          <div className="flex-1 py-2">
+            {sideNav.map((section, sIdx) => (
+              <div key={sIdx} className="mb-2">
+                {section.items.map(item => (
+                  <button
+                    key={item.id}
+                    onClick={() => setView(item.id)}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm transition-colors"
+                    style={{
+                      background: view === item.id ? 'var(--ac)' : 'transparent',
+                      color: view === item.id ? '#000' : 'var(--tx)',
+                    }}
+                  >
+                    <span className="w-5 text-center">{item.icon}</span>
+                    <span className="font-bold">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            ))}
+          </div>
+          
+          <div className="p-4 border-t" style={{ borderColor: 'var(--brd)' }}>
+            <div className="text-xs mb-2" style={{ color: 'var(--tx3)' }}>Mode</div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setTradingMode('paper')}
+                className="flex-1 py-2 text-xs font-bold rounded"
+                style={{
+                  background: tradingMode === 'paper' ? 'var(--ac)' : 'var(--bg3)',
+                  color: tradingMode === 'paper' ? '#000' : 'var(--tx2)',
+                }}
+              >
+                📄 Paper
+              </button>
+              <button
+                onClick={() => setTradingMode('live')}
+                className="flex-1 py-2 text-xs font-bold rounded"
+                style={{
+                  background: tradingMode === 'live' ? 'var(--gn)' : 'var(--bg3)',
+                  color: tradingMode === 'live' ? '#000' : 'var(--tx2)',
+                }}
+              >
+                💰 Live
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-hidden">
+          {view === 'discover' ? (
+            <DiscoverView onTrade={setTradeMarket} />
+          ) : view === 'portfolio' ? (
+            <PortfolioView 
+              trades={trades} 
+              paperBalance={paperBalance}
+              onCloseTrade={handleCloseTrade}
+            />
+          ) : view === 'wallet' ? (
+            <WalletManager 
+              tradingMode={tradingMode}
+              setTradingMode={setTradingMode}
+              paperBalance={paperBalance}
+            />
+          ) : (
+            <CurrentView />
+          )}
+        </main>
+      </div>
+
+      {/* Trade Modal */}
+      <TradeModal 
+        market={tradeMarket}
+        onClose={() => setTradeMarket(null)}
+        onTrade={handleTrade}
+        paperBalance={paperBalance}
+        mode={tradingMode}
+      />
+    </div>
+  );
+}
