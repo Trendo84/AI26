@@ -119,7 +119,7 @@ export default function DiscoverView(props) {
   // Fetch real markets from Polymarket
   var fetchMarkets = useCallback(function() {
     setLoading(true);
-    fetch('https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=100&order=volume&ascending=false')
+    fetch('/.netlify/functions/markets')
       .then(function(res) {
         if (!res.ok) throw new Error('API ' + res.status);
         return res.json();
