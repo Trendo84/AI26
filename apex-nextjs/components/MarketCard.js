@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Spark from './Spark';
 import { catColor } from '@/lib/data';
 
-export default function MarketCard({ m, delay = 0 }) {
+export default function MarketCard({ m, delay = 0, onTrade }) {
   const [hov, setHov] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
 
@@ -12,6 +12,7 @@ export default function MarketCard({ m, delay = 0 }) {
       className="card card-lift relative overflow-hidden cursor-pointer"
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      onClick={() => onTrade && onTrade(m)}
       style={{ padding: '18px 20px', animationDelay: `${delay}s` }}
     >
       {/* Category + bookmark */}
