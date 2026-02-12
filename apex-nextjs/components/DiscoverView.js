@@ -34,7 +34,7 @@ function SideSection({ title, items, delay = 0 }) {
 
 const sp = (n, b, v) => Array.from({ length: n }, (_, i) => b + Math.sin(i * 0.4) * v + (Math.random() - 0.4) * v * 0.7);
 
-export default function DiscoverView() {
+export default function DiscoverView({ onTrade }) {
   const [cat, setCat] = useState('All');
   const [search, setSearch] = useState('');
   const [filt, setFilt] = useState('Trending');
@@ -133,7 +133,7 @@ export default function DiscoverView() {
 
           {/* Market Grid */}
           <div className="main-grid-3 grid gap-3.5" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-            {filtered.map((m, i) => <MarketCard key={m.id} m={m} delay={0.05 + i * 0.04} />)}
+            {filtered.map((m, i) => <MarketCard key={m.id} m={m} delay={0.05 + i * 0.04} onTrade={onTrade} />)}
           </div>
           {filtered.length === 0 && (
             <div className="text-center py-20" style={{ color: 'var(--tx3)' }}>
