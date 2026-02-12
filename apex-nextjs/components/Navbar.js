@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useTheme, themes } from '@/lib/theme';
 
-export default function Navbar({ view, setView }) {
+export default function Navbar({ view, setView, paperBalance, tradingMode, setTradingMode }) {
   const { theme, setTheme } = useTheme();
   const [mobileMenu, setMobileMenu] = useState(false);
   const navItems = [
@@ -65,8 +65,15 @@ export default function Navbar({ view, setView }) {
             <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ac)', fontFamily: 'var(--mono)' }}>10,000 $APEX</span>
           </div>
 
-          {/* Connect */}
-          <button className="btn-primary !py-1.5 !px-4 !text-xs">+ Connect</button>
+          {/* Balance + Mode */}
+          <div className="hidden md:flex items-center gap-2">
+            <span className="text-xs font-bold px-2 py-1 rounded" style={{
+              background: tradingMode === 'paper' ? 'color-mix(in srgb, var(--ac) 15%, transparent)' : 'color-mix(in srgb, var(--gn) 15%, transparent)',
+              color: tradingMode === 'paper' ? 'var(--ac)' : 'var(--gn)',
+            }}>{tradingMode === 'paper' ? '📄 PAPER' : '💰 LIVE'}</span>
+            <span className="text-xs font-bold" style={{ fontFamily: 'var(--mono)', color: 'var(--ac)' }}>${(paperBalance || 0).toFixed(2)}</span>
+          </div>
+          <button onClick={() => setView('wallet')} className="btn-primary !py-1.5 !px-4 !text-xs">💳 Wallet</button>
 
           {/* Mobile hamburger */}
           <button className="md:hidden flex flex-col gap-1 p-2" onClick={() => setMobileMenu(!mobileMenu)}>
