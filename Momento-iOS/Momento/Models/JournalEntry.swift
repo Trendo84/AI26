@@ -5,7 +5,7 @@
 
 import Foundation
 
-struct JournalEntry: Identifiable, Codable, Equatable {
+struct JournalEntry: Identifiable, Codable, Equatable, Hashable {
     let id: UUID
     /// The calendar day this entry represents, normalized to the start of day.
     var day: Date
@@ -29,7 +29,7 @@ struct JournalEntry: Identifiable, Codable, Equatable {
     }
 }
 
-enum Mood: String, Codable, CaseIterable, Identifiable {
+enum Mood: String, Codable, CaseIterable, Identifiable, Hashable {
     case amazing, good, okay, low, rough
 
     var id: String { rawValue }
