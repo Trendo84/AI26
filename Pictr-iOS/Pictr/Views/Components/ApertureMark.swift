@@ -1,6 +1,6 @@
 //
 //  ApertureMark.swift
-//  The Momento brand mark — a camera iris that can open and rotate.
+//  The Pictr brand mark — a camera iris that can open and rotate.
 //
 
 import SwiftUI

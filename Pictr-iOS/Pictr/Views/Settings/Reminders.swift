@@ -7,7 +7,7 @@ import Foundation
 import UserNotifications
 
 enum Reminders {
-    static let identifier = "momento.daily.reminder"
+    static let identifier = "pictr.daily.reminder"
 
     static func request(completion: @escaping (Bool) -> Void) {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
@@ -21,7 +21,7 @@ enum Reminders {
 
         let content = UNMutableNotificationContent()
         content.title = "Capture today's moment 📸"
-        content.body = "Don't break your streak — add today's photo to Momento."
+        content.body = "Don't break your streak — add today's photo to Pictr."
         content.sound = .default
 
         var components = DateComponents()

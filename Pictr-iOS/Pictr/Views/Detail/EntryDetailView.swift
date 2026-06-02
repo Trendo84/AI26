@@ -49,7 +49,7 @@ struct EntryDetailView: View {
                         }
                         if let image = store.image(for: current) {
                             ShareLink(item: Image(uiImage: image),
-                                      preview: SharePreview(current.caption.isEmpty ? "Momento" : current.caption,
+                                      preview: SharePreview(current.caption.isEmpty ? "Pictr" : current.caption,
                                                             image: Image(uiImage: image))) {
                                 Label("Share", systemImage: "square.and.arrow.up")
                             }

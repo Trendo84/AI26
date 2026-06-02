@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		A1000010 /* Momento.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Momento.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000010 /* Pictr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pictr.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		A1000002 /* Momento */ = {
+		A1000002 /* Pictr */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Momento;
+			path = Pictr;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -32,7 +32,7 @@
 		A1000001 = {
 			isa = PBXGroup;
 			children = (
-				A1000002 /* Momento */,
+				A1000002 /* Pictr */,
 				A1000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -40,7 +40,7 @@
 		A1000003 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A1000010 /* Momento.app */,
+				A1000010 /* Pictr.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +48,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A1000030 /* Momento */ = {
+		A1000030 /* Pictr */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A1000040 /* Build configuration list for PBXNativeTarget "Momento" */;
+			buildConfigurationList = A1000040 /* Build configuration list for PBXNativeTarget "Pictr" */;
 			buildPhases = (
 				A1000021 /* Sources */,
 				A1000020 /* Frameworks */,
@@ -61,11 +61,11 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				A1000002 /* Momento */,
+				A1000002 /* Pictr */,
 			);
-			name = Momento;
-			productName = Momento;
-			productReference = A1000010 /* Momento.app */;
+			name = Pictr;
+			productName = Pictr;
+			productReference = A1000010 /* Pictr.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -83,7 +83,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A1000004 /* Build configuration list for PBXProject "Momento" */;
+			buildConfigurationList = A1000004 /* Build configuration list for PBXProject "Pictr" */;
 			compatibilityVersion = "Xcode 15.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -96,7 +96,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A1000030 /* Momento */,
+				A1000030 /* Pictr */,
 			);
 		};
 /* End PBXProject section */
@@ -251,9 +251,9 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Momento uses the camera to capture your photo of the day.";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Momento saves your exported timelapse movies to your photo library.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Momento lets you pick a photo from your library for today's entry.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Pictr uses the camera to capture your photo of the day.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Pictr saves your exported timelapse movies to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Pictr lets you pick a photo from your library for today's entry.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -265,7 +265,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.momento.journal;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pictr.journal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -283,9 +283,9 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Momento uses the camera to capture your photo of the day.";
-				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Momento saves your exported timelapse movies to your photo library.";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Momento lets you pick a photo from your library for today's entry.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Pictr uses the camera to capture your photo of the day.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Pictr saves your exported timelapse movies to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Pictr lets you pick a photo from your library for today's entry.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -297,7 +297,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.momento.journal;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pictr.journal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -308,7 +308,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A1000004 /* Build configuration list for PBXProject "Momento" */ = {
+		A1000004 /* Build configuration list for PBXProject "Pictr" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1000050 /* Debug */,
@@ -317,7 +317,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1000040 /* Build configuration list for PBXNativeTarget "Momento" */ = {
+		A1000040 /* Build configuration list for PBXNativeTarget "Pictr" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1000060 /* Debug */,

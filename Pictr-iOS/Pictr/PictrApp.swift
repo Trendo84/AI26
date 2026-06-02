@@ -1,12 +1,12 @@
 //
-//  MomentoApp.swift
-//  Momento — one photo, every day.
+//  PictrApp.swift
+//  Pictr — one photo, every day.
 //
 
 import SwiftUI
 
 @main
-struct MomentoApp: App {
+struct PictrApp: App {
     @StateObject private var store = JournalStore()
     @State private var phase: AppPhase = .splash
 

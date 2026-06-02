@@ -41,12 +41,12 @@ jobs:
           echo "Selected simulator UDID: $UDID"
 
       - name: Build (iOS Simulator)
-        working-directory: Momento-iOS
+        working-directory: Pictr-iOS
         run: |
           set -o pipefail
           xcodebuild build \
-            -project Momento.xcodeproj \
-            -scheme Momento \
+            -project Pictr.xcodeproj \
+            -scheme Pictr \
             -configuration Debug \
             -destination "id=${{ steps.sim.outputs.udid }}" \
             -derivedDataPath build \
@@ -60,19 +60,19 @@ jobs:
           xcrun simctl bootstatus "${{ steps.sim.outputs.udid }}" -b
 
       - name: Install & launch app
-        working-directory: Momento-iOS
+        working-directory: Pictr-iOS
         run: |
-          APP=$(find build/Build/Products -maxdepth 3 -name "Momento.app" | head -1)
+          APP=$(find build/Build/Products -maxdepth 3 -name "Pictr.app" | head -1)
           echo "App bundle: $APP"
           xcrun simctl install "${{ steps.sim.outputs.udid }}" "$APP"
-          xcrun simctl launch "${{ steps.sim.outputs.udid }}" com.momento.journal
+          xcrun simctl launch "${{ steps.sim.outputs.udid }}" com.pictr.journal
           # Splash auto-advances (~2s); capture onboarding once it renders.
           sleep 6
           xcrun simctl io "${{ steps.sim.outputs.udid }}" screenshot ../01-onboarding.png || true
           # Skip onboarding and re-launch to capture the main "Today" screen.
-          xcrun simctl terminate "${{ steps.sim.outputs.udid }}" com.momento.journal || true
-          xcrun simctl spawn "${{ steps.sim.outputs.udid }}" defaults write com.momento.journal hasOnboarded -bool YES || true
-          xcrun simctl launch "${{ steps.sim.outputs.udid }}" com.momento.journal || true
+          xcrun simctl terminate "${{ steps.sim.outputs.udid }}" com.pictr.journal || true
+          xcrun simctl spawn "${{ steps.sim.outputs.udid }}" defaults write com.pictr.journal hasOnboarded -bool YES || true
+          xcrun simctl launch "${{ steps.sim.outputs.udid }}" com.pictr.journal || true
           sleep 5
           xcrun simctl io "${{ steps.sim.outputs.udid }}" screenshot ../02-today.png || true
 
@@ -80,7 +80,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: momento-screenshots
+          name: pictr-screenshots
           path: |
             01-onboarding.png
             02-today.png

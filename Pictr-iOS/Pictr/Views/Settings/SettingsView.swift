@@ -117,7 +117,7 @@ struct SettingsView: View {
         VStack(spacing: 10) {
             ApertureMark(openAmount: 1)
                 .frame(width: 56, height: 56)
-            Text("Momento")
+            Text("Pictr")
                 .font(.system(size: 18, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
             Text("Version \(appVersion)")

@@ -35,7 +35,7 @@ struct OnboardingView: View {
                     OnboardingPage(
                         illustration: AnyView(FloatingCardsIllustration(active: page == 0)),
                         title: "Capture your\nevery day",
-                        subtitle: "Momento turns ordinary moments into a beautiful visual diary — one photo at a time."
+                        subtitle: "Pictr turns ordinary moments into a beautiful visual diary — one photo at a time."
                     ).tag(0)
 
                     OnboardingPage(

@@ -102,7 +102,7 @@ final class MovieExporter {
 
         // Output file
         let outputURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("Momento-\(Int(Date().timeIntervalSince1970)).mp4")
+            .appendingPathComponent("Pictr-\(Int(Date().timeIntervalSince1970)).mp4")
         try? FileManager.default.removeItem(at: outputURL)
 
         guard let writer = try? AVAssetWriter(url: outputURL, fileType: .mp4) else {
@@ -138,7 +138,7 @@ final class MovieExporter {
         }
         writer.startSession(atSourceTime: .zero)
 
-        let queue = DispatchQueue(label: "momento.export")
+        let queue = DispatchQueue(label: "pictr.export")
 
         return try await withCheckedThrowingContinuation { continuation in
             var frameIndex = 0

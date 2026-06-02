@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Momento — AI-generated app icon.
+Pictr — AI-generated app icon.
 
 Draws a premium "camera aperture / a-photo-a-day" mark on a warm sunset
 gradient, the way a designer would: supersampled for crisp anti-aliasing,
 a soft inner glow, a 6-blade iris pinwheel, and a subtle highlight.
 
-Output: Momento/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png
+Output: Pictr/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png
         (plus a rounded marketing preview for the README)
 """
 import math
@@ -15,7 +15,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-ICON_DIR = os.path.join(ROOT, "Momento", "Assets.xcassets", "AppIcon.appiconset")
+ICON_DIR = os.path.join(ROOT, "Pictr", "Assets.xcassets", "AppIcon.appiconset")
 
 SS = 4                 # supersample factor
 SIZE = 1024

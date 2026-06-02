@@ -35,7 +35,7 @@ struct SplashView: View {
                     .opacity(markOpacity)
 
                 VStack(spacing: 8) {
-                    Text("Momento")
+                    Text("Pictr")
                         .font(.system(size: 38, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                     Text("One photo, every day.")

@@ -1,4 +1,4 @@
-# Momento 📸
+# Pictr 📸
 
 **One photo, every day.** A slick, beautiful daily photo journal for iOS — with an
 expert-level **timelapse / movie exporter** that stitches your days into a cinematic clip.
@@ -6,7 +6,7 @@ expert-level **timelapse / movie exporter** that stitches your days into a cinem
 Built in **SwiftUI**, native, no third‑party dependencies. Version **0.2**.
 
 <p align="center">
-  <img src="AppIconPreview.png" width="160" alt="Momento app icon"/>
+  <img src="AppIconPreview.png" width="160" alt="Pictr app icon"/>
 </p>
 
 ---
@@ -39,16 +39,16 @@ Built in **SwiftUI**, native, no third‑party dependencies. Version **0.2**.
 > The iOS Simulator only runs on macOS, so building/launching happens on your Mac mini.
 
 ```bash
-cd Momento-iOS
-open Momento.xcodeproj
+cd Pictr-iOS
+open Pictr.xcodeproj
 # In Xcode: pick an iPhone simulator (e.g. iPhone 16 Pro) and press ⌘R
 ```
 
 Or from the command line:
 
 ```bash
-cd Momento-iOS
-xcodebuild -project Momento.xcodeproj -scheme Momento \
+cd Pictr-iOS
+xcodebuild -project Pictr.xcodeproj -scheme Pictr \
   -destination 'platform=iOS Simulator,name=iPhone 16 Pro' build
 
 xcrun simctl boot "iPhone 16 Pro"
@@ -66,8 +66,8 @@ iOS 17+ deployment target.
 ## 🧱 Architecture
 
 ```
-Momento/
-├─ MomentoApp.swift            # App entry, splash → main phase
+Pictr/
+├─ PictrApp.swift            # App entry, splash → main phase
 ├─ Models/
 │  ├─ JournalEntry.swift       # Codable day entry + Mood
 │  └─ JournalStore.swift       # ObservableObject: JSON metadata + on-disk photos, streaks
