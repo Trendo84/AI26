@@ -1,0 +1,88 @@
+name: iOS Build & Run
+
+on:
+  push:
+    branches: [ "claude/ios-journal-photo-app-cKxr7" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-run:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version || true
+          echo "Available iPhone simulators:"
+          xcrun simctl list devices available | grep -i iphone || true
+
+      - name: Pick a simulator
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
+          import json,sys
+          d=json.load(sys.stdin)['devices']
+          cands=[]
+          for rt,devs in d.items():
+              if 'iOS' not in rt: continue
+              for dev in devs:
+                  if dev.get('isAvailable') and 'iPhone' in dev['name']:
+                      cands.append((rt,dev['name'],dev['udid']))
+          # prefer the highest iOS runtime + a Pro model if present
+          cands.sort(key=lambda c:(c[0], 'Pro' in c[1]))
+          rt,name,udid=cands[-1]
+          print(udid)
+          ")
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          echo "Selected simulator UDID: $UDID"
+
+      - name: Build (iOS Simulator)
+        working-directory: Momento-iOS
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project Momento.xcodeproj \
+            -scheme Momento \
+            -configuration Debug \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            2>&1 | tee ../build.log
+
+      - name: Boot simulator
+        run: |
+          xcrun simctl boot "${{ steps.sim.outputs.udid }}" || true
+          xcrun simctl bootstatus "${{ steps.sim.outputs.udid }}" -b
+
+      - name: Install & launch app
+        working-directory: Momento-iOS
+        run: |
+          APP=$(find build/Build/Products -maxdepth 3 -name "Momento.app" | head -1)
+          echo "App bundle: $APP"
+          xcrun simctl install "${{ steps.sim.outputs.udid }}" "$APP"
+          xcrun simctl launch "${{ steps.sim.outputs.udid }}" com.momento.journal
+          # Splash auto-advances (~2s); capture onboarding once it renders.
+          sleep 6
+          xcrun simctl io "${{ steps.sim.outputs.udid }}" screenshot ../01-onboarding.png || true
+          # Skip onboarding and re-launch to capture the main "Today" screen.
+          xcrun simctl terminate "${{ steps.sim.outputs.udid }}" com.momento.journal || true
+          xcrun simctl spawn "${{ steps.sim.outputs.udid }}" defaults write com.momento.journal hasOnboarded -bool YES || true
+          xcrun simctl launch "${{ steps.sim.outputs.udid }}" com.momento.journal || true
+          sleep 5
+          xcrun simctl io "${{ steps.sim.outputs.udid }}" screenshot ../02-today.png || true
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: momento-screenshots
+          path: |
+            01-onboarding.png
+            02-today.png
+            build.log
+          if-no-files-found: warn
