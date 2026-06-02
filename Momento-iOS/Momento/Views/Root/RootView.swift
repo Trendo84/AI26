@@ -74,7 +74,6 @@ struct RootView: View {
 struct CustomTabBar: View {
     @Binding var selection: AppTab
     var onCapture: () -> Void
-    @Namespace private var ns
 
     var body: some View {
         HStack(spacing: 0) {
